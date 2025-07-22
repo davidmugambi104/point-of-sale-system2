@@ -295,9 +295,22 @@ def manage_products():
             if not all(field in data for field in required_fields):
                 return jsonify({'message': 'Missing required fields'}), 400
 
+            # Generate unique SKU if not provided
+            sku = data.get('sku')
+            if not sku:
+                # Generate unique SKU using name and random string
+                name_part = data['name'][:3].upper()
+                random_part = secrets.token_hex(2).upper()
+                sku = f"{name_part}-{random_part}"
+                
+                # Ensure uniqueness
+                while Product.query.filter_by(sku=sku).first():
+                    random_part = secrets.token_hex(2).upper()
+                    sku = f"{name_part}-{random_part}"
+
             try:
-                # Convert numeric values
                 new_product = Product(
+                    sku=sku,  # Add generated SKU
                     name=data['name'],
                     price=Decimal(str(data['price'])),
                     stock_quantity=int(data['stock']),
@@ -305,12 +318,14 @@ def manage_products():
                 )
                 db.session.add(new_product)
                 db.session.commit()
+                
                 return jsonify({
                     'message': 'Product added',
                     'product': {
                         'id': new_product.id,
                         'name': new_product.name,
-                        'price': float(new_product.price)
+                        'price': float(new_product.price),
+                        'sku': new_product.sku  # Return generated SKU
                     }
                 }), 201
                 
@@ -321,7 +336,6 @@ def manage_products():
     except Exception as e:
         db.session.rollback()
         return jsonify({'message': 'Server error', 'error': str(e)}), 500
-
 
 # Routes
 @app.route('/reports/sales', methods=['GET'])

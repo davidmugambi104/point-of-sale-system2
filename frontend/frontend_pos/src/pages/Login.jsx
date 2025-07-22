@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -7,7 +7,6 @@ import {
   Button, 
   TextField, 
   Typography, 
-  Fade, 
   Zoom, 
   useTheme,
   Divider,
@@ -48,7 +47,7 @@ const Login = () => {
         const { data } = await api.post('/login', values);
         login(data.token);
         showNotification('Welcome back!', 'success');
-        navigate('/');
+        navigate('/dashboard'); // ✅ Updated redirect path
       } catch (error) {
         showNotification(error.response?.data?.message || 'Login failed', 'error');
       } finally {

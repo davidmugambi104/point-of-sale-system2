@@ -106,6 +106,7 @@ class Transaction(db.Model):
     transaction_date = db.Column(db.DateTime, default=db.func.current_timestamp())
     discount = db.Column(db.Float, default=0.0)
     payment_method = Column(Enum('cash', 'mpesa', 'card'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'), nullable=True)
     
     employee = db.relationship('Employee', back_populates='transactions')
     sale_items = db.relationship('SaleItem', back_populates='transaction', cascade='all, delete-orphan')
